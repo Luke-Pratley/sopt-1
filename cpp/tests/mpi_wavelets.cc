@@ -86,3 +86,45 @@ TEST_CASE("Wavelet indirect MPI over cols and rows", "[wavelet]") {
   CAPTURE(output_mpi.row(0));
   REQUIRE(output.isApprox(output_mpi, 1e-12));
 }
+
+TEST_CASE("Wavelet indirect MPI with levels over cols and rows", "[wavelet]") {
+  using namespace sopt::wavelets;
+  using namespace sopt;
+
+  auto const world = mpi::Communicator::World();
+  auto const Nx = 32;
+  auto const Ny = 32;
+  auto levels = 3;
+  const auto wavelet = sopt::wavelets::factory("db4", 3);
+  const Image<t_real> input = world.broadcast<Image<t_real>>(Image<t_real>::Random(Ny, Nx).eval());
+  const Image<t_real> input_mpi = input;
+  Image<t_real> output = Image<t_real>::Zero(Ny, Nx);
+  Image<t_real> output_mpi = Image<t_real>::Zero(Ny, Nx);
+  indirect_transform(output, input, levels, wavelet);
+  indirect_transform(output_mpi, input_mpi, levels, wavelet, world);
+  CAPTURE(world.rank());
+  CAPTURE(input.row(0));
+  CAPTURE(output.row(0));
+  CAPTURE(output_mpi.row(0));
+  REQUIRE(output.isApprox(output_mpi, 1e-12));
+}
+
+TEST_CASE("Wavelet direct MPI with levels over cols and rows", "[wavelet]") {
+  using namespace sopt::wavelets;
+  using namespace sopt;
+
+  auto const world = mpi::Communicator::World();
+  auto const Nx = 32;
+  auto const Ny = 32;
+  auto levels = 3;
+  const auto wavelet = sopt::wavelets::factory("db4", 3);
+  const Image<t_real> input = world.broadcast<Image<t_real>>(Image<t_real>::Random(Ny, Nx).eval());
+  const Image<t_real> input_mpi = input;
+  const Image<t_real> output = direct_transform(input, levels, wavelet);
+  const Image<t_real> output_mpi = direct_transform(input_mpi, levels, wavelet, world);
+  CAPTURE(world.rank());
+  CAPTURE(input.row(0));
+  CAPTURE(output.row(0));
+  CAPTURE(output_mpi.row(0));
+  REQUIRE(output.isApprox(output_mpi, 1e-12));
+}
