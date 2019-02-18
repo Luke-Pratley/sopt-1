@@ -21,7 +21,8 @@ if(TIFF_FOUND)
 endif()
 if(SOPT_MPI)
   list(APPEND sources mpi/communicator.cc mpi/registered_types.cc mpi/session.cc wavelets/sara.cc)
-  list(APPEND mpi_headers mpi/communicator.h mpi/registered_types.h mpi/utilities.h mpi/session.h)
+  list(APPEND mpi_headers mpi/communicator.h mpi/registered_types.h mpi/utilities.h mpi/session.h wavelets/mpi_wavelets.h
+ )
 endif()
 
 add_library(sopt SHARED ${sources})
