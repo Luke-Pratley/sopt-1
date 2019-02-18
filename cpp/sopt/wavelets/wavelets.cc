@@ -27,10 +27,10 @@ Wavelet factory(std::string name, t_uint nlevels) {
 }
 
 #ifdef SOPT_MPI
-WaveletMPI factory(std::string name, t_uint nlevels, mpi::Communicator comm) {
+Wavelet_MPI mpi_factory(std::string name, t_uint nlevels, mpi::Communicator comm) {
   if (name == "dirac" or name == "Dirac") {
     SOPT_MEDIUM_LOG("Creating Dirac MPI Wavelet");
-    return WaveletMPI(daubechies_data(1), 0, comm);
+    return Wavelet_MPI(daubechies_data(1), 0, comm);
   }
 
   if (name.substr(0, 2) == "DB" or name.substr(0, 2) == "db") {
@@ -38,7 +38,7 @@ WaveletMPI factory(std::string name, t_uint nlevels, mpi::Communicator comm) {
     t_uint l(0);
     sstr >> l;
     SOPT_MEDIUM_LOG("Creating Daubechies MPI Wavelet {}, level {}", l, nlevels);
-    return WaveletMPI(daubechies_data(l), nlevels, comm);
+    return Wavelet_MPI(daubechies_data(l), nlevels, comm);
   }
   // Unknown input wavelet
   throw std::exception();

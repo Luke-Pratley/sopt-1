@@ -1,5 +1,5 @@
-#ifndef SOPT_WAVELETS_WAVELETS_MPI_H
-#define SOPT_WAVELETS_WAVELETS_MPI_H
+#ifndef SOPT_WAVELETS_MPI_H
+#define SOPT_WAVELETS_MPI_H
 
 #include "sopt/config.h"
 #include "sopt/types.h"
@@ -14,24 +14,24 @@ namespace sopt {
 namespace wavelets {
 
 // Advance declaration so we can define the subsequent friend function
-class WaveletMPI;
+class Wavelet_MPI;
 
 //! \brief Creates a wavelet transform object
-WaveletMPI factory(std::string name = "DB1", t_uint nlevels = 1,
+Wavelet_MPI mpi_factory(std::string name = "DB1", t_uint nlevels = 1,
                    mpi::Communicator comm = mpi::Communicator());
 
 //! Performs direct and indirect wavelet transforms
-class WaveletMPI : public WaveletData {
-  friend WaveletMPI factory(std::string name, t_uint nlevels, mpi::Communicator comm);
+class Wavelet_MPI : public WaveletData {
+  friend Wavelet_MPI mpi_factory(std::string name, t_uint nlevels, mpi::Communicator comm);
 
  protected:
   //! Should be called through factory function
-  WaveletMPI(WaveletData const &c, t_uint nlevels, const mpi::Communicator comm)
+  Wavelet_MPI(WaveletData const &c, t_uint nlevels, const mpi::Communicator comm)
       : WaveletData(c), levels_(nlevels), comm_(comm) {}
 
  public:
   //! Destructor
-  virtual ~WaveletMPI() {}
+  virtual ~Wavelet_MPI() {}
 
 // Temporary macros that checks constraints on input
 #define SOPT_WAVELET_MACRO_MULTIPLE(NAME)                                                   \
