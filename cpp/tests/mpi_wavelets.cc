@@ -128,3 +128,60 @@ TEST_CASE("Wavelet direct MPI with levels over cols and rows", "[wavelet]") {
   CAPTURE(output_mpi.row(0));
   REQUIRE(output.isApprox(output_mpi, 1e-12));
 }
+TEST_CASE("Wavelet MPI", "[wavelet]") {
+  using namespace sopt::wavelets;
+  using namespace sopt;
+
+  auto const world = mpi::Communicator::World();
+  auto const Nx = 32;
+  auto const Ny = 32;
+  const auto wavelet_mpi = sopt::wavelets::mpi_factory("db4", 3, world);
+  const auto wavelet = sopt::wavelets::factory("db4", 3);
+  auto const psi_mpi = linear_transform<t_real>(wavelet_mpi, Nx, Ny);
+  auto const psi = linear_transform<t_real>(wavelet, Nx, Ny);
+  const Vector<t_real> input =
+      world.broadcast<Vector<t_real>>(Vector<t_real>::Random(Ny * Nx).eval());
+  const Vector<t_real> output = psi.adjoint() * input;
+  const Vector<t_real> output_mpi = psi_mpi.adjoint() * input;
+
+  CAPTURE(world.rank());
+  CAPTURE(input.head(5));
+  CAPTURE(output.head(5));
+  CAPTURE(output_mpi.head(5));
+  REQUIRE(output.isApprox(output_mpi, 1e-12));
+}
+
+TEST_CASE("SARA MPI", "[wavelet]") {
+  using namespace sopt::wavelets;
+  using namespace sopt;
+
+  auto const world = mpi::Communicator::World();
+  auto const Nx = 32;
+  auto const Ny = 32;
+  const auto sara_mpi =
+      sopt::wavelets::SARA_MPI{{"db4", 3, world}, {"db5", 3, world}, {"db8", 3, world}};
+  const auto sara = sopt::wavelets::SARA{{"db4", 3}, {"db5", 3}, {"db8", 3}};
+  auto const psi_mpi = linear_transform<t_real>(sara_mpi, Nx, Ny);
+  auto const psi = linear_transform<t_real>(sara, Nx, Ny);
+  const Vector<t_real> input_adj =
+      world.broadcast<Vector<t_real>>(Vector<t_real>::Random(Ny * Nx).eval());
+  const Vector<t_real> output_adj = psi.adjoint() * input_adj;
+  const Vector<t_real> output_mpi_adj = psi_mpi.adjoint() * input_adj;
+
+  CAPTURE(world.rank());
+  CAPTURE(input_adj.head(5));
+  CAPTURE(output_adj.head(5));
+  CAPTURE(output_mpi_adj.head(5));
+  REQUIRE(output_adj.isApprox(output_mpi_adj, 1e-12));
+
+  const Vector<t_real> input =
+      world.broadcast<Vector<t_real>>(Vector<t_real>::Random(Ny * Nx * sara.size()).eval());
+  const Vector<t_real> output = psi.adjoint() * input;
+  const Vector<t_real> output_mpi = psi_mpi.adjoint() * input;
+
+  CAPTURE(world.rank());
+  CAPTURE(input.head(5));
+  CAPTURE(output.head(5));
+  CAPTURE(output_mpi.head(5));
+  REQUIRE(output.isApprox(output_mpi, 1e-12));
+}
