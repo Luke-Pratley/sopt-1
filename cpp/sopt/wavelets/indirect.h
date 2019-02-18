@@ -76,7 +76,7 @@ typename std::enable_if<not T1::IsVectorAtCompileTime, void>::type indirect_tran
   for (t_uint i = 0; i < comm.size(); ++i) {
     const t_uint part = comm.broadcast(row_partition, i);
     signal.block(loc, 0, part, signal.cols()) =
-        comm.broadcast<T0>(signal.block(loc, 0, part, signal.cols()), i);
+        comm.broadcast<Image<typename T0::Scalar>>(signal.block(loc, 0, part, signal.cols()), i);
     loc += part;
   }
   coeffs = signal;
@@ -94,7 +94,7 @@ typename std::enable_if<not T1::IsVectorAtCompileTime, void>::type indirect_tran
   for (t_uint i = 0; i < comm.size(); ++i) {
     t_uint const part = comm.broadcast(col_partition, i);
     signal.block(0, loc, signal.rows(), part) =
-        comm.broadcast<T0>(signal.block(0, loc, signal.rows(), part), i);
+        comm.broadcast<Image<typename T0::Scalar>>(signal.block(0, loc, signal.rows(), part), i);
     loc += part;
   }
 }

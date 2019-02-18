@@ -84,7 +84,7 @@ typename std::enable_if<not T1::IsVectorAtCompileTime, void>::type direct_transf
   for (t_uint i = 0; i < comm.size(); ++i) {
     const t_uint part = comm.broadcast(row_partition, i);
     coeffs.block(loc, 0, part, coeffs.cols()) =
-        comm.broadcast<T0>(coeffs.block(loc, 0, part, coeffs.cols()), i);
+        comm.broadcast<Image<typename T0::Scalar>>(coeffs.block(loc, 0, part, coeffs.cols()), i);
     loc += part;
   }
   const t_uint col_r = coeffs.cols() % comm.size();
@@ -104,7 +104,7 @@ typename std::enable_if<not T1::IsVectorAtCompileTime, void>::type direct_transf
   for (t_uint i = 0; i < comm.size(); ++i) {
     t_uint const part = comm.broadcast(col_partition, i);
     coeffs.block(0, loc, coeffs.rows(), part) =
-        comm.broadcast<T0>(coeffs.block(0, loc, coeffs.rows(), part), i);
+        comm.broadcast<Image<typename T0::Scalar>>(coeffs.block(0, loc, coeffs.rows(), part), i);
     loc += part;
   }
 }
