@@ -45,3 +45,44 @@ TEST_CASE("Wavelet transform innards with integer data", "[wavelet]") {
     CHECK(serial_signal.isApprox(para_signal));
   }
 }
+TEST_CASE("Wavelet direct MPI over cols and rows", "[wavelet]") {
+  using namespace sopt::wavelets;
+  using namespace sopt;
+
+  auto const world = mpi::Communicator::World();
+  auto const Nx = 32;
+  auto const Ny = 32;
+  const auto wavelet = sopt::wavelets::factory("db4", 3);
+  const Image<t_real> input = world.broadcast<Image<t_real>>(Image<t_real>::Random(Ny, Nx).eval());
+  const Image<t_real> input_mpi = input;
+  Image<t_real> output = Image<t_real>::Zero(Ny, Nx);
+  Image<t_real> output_mpi = Image<t_real>::Zero(Ny, Nx);
+  direct_transform_impl(output, input, wavelet);
+  direct_transform_impl(output_mpi, input_mpi, wavelet, world);
+  CAPTURE(world.rank());
+  CAPTURE(input.row(0));
+  CAPTURE(output.row(0));
+  CAPTURE(output_mpi.row(0));
+  REQUIRE(output.isApprox(output_mpi, 1e-12));
+}
+
+TEST_CASE("Wavelet indirect MPI over cols and rows", "[wavelet]") {
+  using namespace sopt::wavelets;
+  using namespace sopt;
+
+  auto const world = mpi::Communicator::World();
+  auto const Nx = 32;
+  auto const Ny = 32;
+  const auto wavelet = sopt::wavelets::factory("db4", 3);
+  const Image<t_real> input = world.broadcast<Image<t_real>>(Image<t_real>::Random(Ny, Nx).eval());
+  const Image<t_real> input_mpi = input;
+  Image<t_real> output = Image<t_real>::Zero(Ny, Nx);
+  Image<t_real> output_mpi = Image<t_real>::Zero(Ny, Nx);
+  indirect_transform_impl(output, input, wavelet);
+  indirect_transform_impl(output_mpi, input_mpi, wavelet, world);
+  CAPTURE(world.rank());
+  CAPTURE(input.row(0));
+  CAPTURE(output.row(0));
+  CAPTURE(output_mpi.row(0));
+  REQUIRE(output.isApprox(output_mpi, 1e-12));
+}
