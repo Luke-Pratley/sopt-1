@@ -7,6 +7,8 @@
 #include "sopt/linear_transform.h"
 #ifdef SOPT_MPI
 #include "sopt/mpi/communicator.h"
+#include "sopt/wavelets/mpi_sara.h"
+#include "sopt/wavelets/mpi_wavelets.h"
 #endif
 #include "sopt/wavelets/sara.h"
 #include "sopt/wavelets/wavelets.h"
@@ -192,6 +194,11 @@ LinearTransform<Vector<T>> linear_transform(wavelets::Wavelet const &wavelet, t_
                                             t_uint cols = 1) {
   return details::linear_transform<T, wavelets::Wavelet>(wavelet, rows, cols);
 }
+template <class T>
+LinearTransform<Vector<T>> linear_transform(wavelets::Wavelet_MPI const &wavelet, t_uint rows,
+                                            t_uint cols = 1) {
+  return details::linear_transform<T, wavelets::Wavelet_MPI>(wavelet, rows, cols);
+}
 //! \brief Thin linear-transform wrapper around 2d wavelets
 //! \param[in] sara: SARA wavelet dictionary
 //! \param[in] rows: Number of rows in the image
@@ -202,6 +209,11 @@ template <class T>
 LinearTransform<Vector<T>> linear_transform(wavelets::SARA const &sara, t_uint rows,
                                             t_uint cols = 1) {
   return details::linear_transform<T, wavelets::SARA>(sara, rows, cols, sara.size());
+}
+template <class T>
+LinearTransform<Vector<T>> linear_transform(wavelets::SARA_MPI const &sara, t_uint rows,
+                                            t_uint cols = 1) {
+  return details::linear_transform<T, wavelets::SARA_MPI>(sara, rows, cols, sara.size());
 }
 #ifdef SOPT_MPI
 //! \brief Returns linear transform for distirbuted SARA linear operator
